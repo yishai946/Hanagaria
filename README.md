@@ -16,11 +16,29 @@ A demo project ("שולחן קפה תעשייתי") works without an API key.
 
 ## Layout
 
-- `server.js` — `/api/plan`: Claude (`claude-opus-5-5`) + web search → plan via the `submit_plan` tool, streamed progress (SSE).
-- `src/planSchema.js` — the plan JSON schema and the system prompt (geometry rules, Hebrew, prices).
-- `src/plan.js` — validates/normalizes the AI plan, groups identical parts (letters א, ב...), totals.
-- `src/Viewer3D.jsx`, `src/threeAssets.js` — React Three Fiber scene, procedural wood/metal, animations.
-- `src/App.jsx` — Hebrew RTL UI. Projects are saved in the browser (localStorage).
+TypeScript throughout, split by layer (same idea as Trace: one folder per layer, `@shared` for code both sides use).
+
+```
+server/                      API (Express, run with tsx)
+  index.ts  app.ts  config.ts  errors.ts
+  ai/                        client, prompts (system prompt), schemas (submit_plan tool, questions)
+  modules/
+    planRequest.ts           validates the browser request, builds the AI message
+    plan/                    POST /api/plan: Claude + web search, SSE progress (routes + service)
+    questions/               POST /api/questions: clarifying questions (routes + service)
+shared/                      used by server and web
+  constants.ts  types.ts     materials, difficulty/budget, Plan types
+  plan.ts  demoPlan.ts       normalizes/validates the AI plan, groups parts, totals; demo project
+web/                         React + Vite front-end (Hebrew RTL)
+  src/App.tsx                state orchestration
+  src/pages/                 home, questions, generating, project (+ side panes)
+  src/components/            Icon, Brand, Seg, BgModel
+  src/three/                 Viewer3D (react-three-fiber), procedural wood/metal assets
+  src/api/ cloud/ lib/       server calls, Supabase accounts, storage / customize / finishes
+supabase/schema.sql
+```
+
+Checks: `npm run typecheck`, `npm test` (vitest).
 
 Settings in `.env`: `MODEL`, `EFFORT` (low/medium/high), `API_PORT`.
 
