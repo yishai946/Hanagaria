@@ -1,4 +1,4 @@
-# סדנה — מדריכי הרכבה בתלת־ממד
+# הנגריה — מדריכי הרכבה בתלת־ממד
 
 Describe (or photograph) something to build from wood or metal. Claude designs it and returns a LEGO-style animated 3D booklet: parts page, step-by-step assembly, tools, cut list and expected prices from Israeli stores (via web search).
 
