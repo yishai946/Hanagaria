@@ -1,20 +1,12 @@
 import { useEffect, useState } from 'react';
-import { cloudEnabled, signInEmail, signInGoogle, signOut, type Auth } from '../../cloud/cloud';
+import { cloudEnabled, signInEmail, signInGoogle, type Auth } from '../../cloud/cloud';
 import { Icon } from '../../components/Icon';
+import { ProfileMenu } from './ProfileMenu';
 
 export function AuthButton({ auth }: { auth: Auth }) {
   const [open, setOpen] = useState(false);
   if (!cloudEnabled || auth.loading) return null;
-  if (auth.user) {
-    const email = auth.user.email || '';
-    return (
-      <div className="auth-user gl">
-        <span className="auth-avatar" aria-hidden="true">{email.slice(0, 1).toUpperCase()}</span>
-        <span className="auth-email" dir="ltr">{email}</span>
-        <button type="button" onClick={() => signOut()}>התנתקות</button>
-      </div>
-    );
-  }
+  if (auth.user) return <ProfileMenu auth={auth} />;
   return (
     <>
       <button type="button" className="pill-link gl" onClick={() => setOpen(true)}>התחברות</button>

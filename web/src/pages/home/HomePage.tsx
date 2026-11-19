@@ -1,9 +1,9 @@
-import { useRef, useState, type DragEvent, type FormEvent, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type DragEvent, type FormEvent, type KeyboardEvent } from 'react';
 import { BUDGETS, DIFFICULTIES } from '@shared/constants';
 import { DEMO_PLAN } from '@shared/demoPlan';
 import type { Budget, Difficulty } from '@shared/types';
 import { fileToImage, type PlanRequest, type UploadedImage } from '../../api/plan.api';
-import type { Auth, Project } from '../../cloud/cloud';
+import { userCity, type Auth, type Project } from '../../cloud/cloud';
 import { BgModel } from '../../components/BgModel';
 import { Brand } from '../../components/Brand';
 import { Icon } from '../../components/Icon';
@@ -32,7 +32,10 @@ interface Props {
 export function HomePage({ initial, projects, auth, onGenerate, onDelete }: Props) {
   const [prompt, setPrompt] = useState(initial?.prompt || '');
   const [image, setImage] = useState<UploadedImage | null>(initial?.image || null);
-  const [city, setCity] = useState(() => store.get('sadna-city', ''));
+  const profileCity = userCity(auth.user);
+  const [city, setCity] = useState(() => initial?.city || profileCity || store.get('sadna-city', ''));
+  const typed = useRef(false); // the profile city is only a default: never overwrite what the user typed
+  useEffect(() => { if (profileCity && !typed.current) setCity(profileCity); }, [profileCity]);
   const [drag, setDrag] = useState(false);
   const [difficulty, setDifficulty] = useState<Difficulty>(() => initial?.difficulty || store.get<Difficulty>('sadna-difficulty', 'קל'));
   const [budget, setBudget] = useState<Budget>(() => initial?.budget || store.get<Budget>('sadna-budget', 'זול'));
@@ -78,7 +81,7 @@ export function HomePage({ initial, projects, auth, onGenerate, onDelete }: Prop
             <button type="button" className="ghost-btn" onClick={() => fileRef.current?.click()}><Icon n="image" /> {image ? 'החלף תמונה' : 'העלה תמונה'}</button>
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => pick(e.target.files?.[0])} />
             <label className="city"><Icon n="pin" s={16} /><span className="sr">עיר לחיפוש מחירים</span>
-              <input value={city} onChange={(e) => setCity(e.target.value)} placeholder="עיר (למחירים)" maxLength={60} /></label>
+              <input value={city} onChange={(e) => { typed.current = true; setCity(e.target.value); }} placeholder="עיר (למחירים)" maxLength={60} /></label>
             <button className="primary" disabled={!prompt.trim() && !image}>צור מדריך <Icon n="next" /></button>
           </div>
           <div className="chips">{EXAMPLES.map((x) => <button type="button" key={x} onClick={() => setPrompt(x)}>{x}</button>)}</div>

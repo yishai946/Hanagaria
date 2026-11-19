@@ -5,6 +5,7 @@ import { OrbitControls, ContactShadows, Environment, Lightformer, Grid, Html, Li
 import { EffectComposer, N8AO } from '@react-three/postprocessing';
 import { makeGeometry, makeMaterial, partBox, toEuler, isWood } from './assets';
 import { groupOf, fmtCm } from '@shared/plan';
+import { useTheme } from '../lib/theme';
 import type { Part, Plan, PartGroup } from '@shared/types';
 
 const ACCENT = new THREE.Color('#ff6a2b');
@@ -61,6 +62,7 @@ export interface Viewer3DProps {
 
 export default function Viewer3D(props: Viewer3DProps) {
   const { plan, step } = props;
+  const dark = useTheme() === 'dark';
   const bounds = useMemo(() => modelBounds(plan.parts), [plan]);
   const inventory = useMemo(() => inventoryLayout(plan), [plan]);
   const view = step < 0 ? inventory.box : bounds;
@@ -84,7 +86,7 @@ export default function Viewer3D(props: Viewer3DProps) {
         <shadowMaterial opacity={0.14} />
       </mesh>
       <ContactShadows position={[0, 0.03, 0]} scale={radius * 4} far={radius * 1.2} blur={2.2} opacity={0.45} resolution={1024} color="#3a2616" />
-      <Grid position={[0, 0.01, 0]} infiniteGrid cellSize={radius < 60 ? 5 : 10} sectionSize={radius < 60 ? 25 : 50} fadeDistance={radius * 9} fadeStrength={1.6} cellColor="#d9d5cb" sectionColor="#c4bfb3" cellThickness={0.6} sectionThickness={1.1} />
+      <Grid position={[0, 0.01, 0]} infiniteGrid cellSize={radius < 60 ? 5 : 10} sectionSize={radius < 60 ? 25 : 50} fadeDistance={radius * 9} fadeStrength={1.6} cellColor={dark ? '#3a3731' : '#d9d5cb'} sectionColor={dark ? '#4d4941' : '#c4bfb3'} cellThickness={0.6} sectionThickness={1.1} />
       <CameraRig plan={plan} step={step} view={view} radius={radius} />
       <OrbitControls makeDefault enableDamping dampingFactor={0.08} autoRotate={props.autoRotate} autoRotateSpeed={1.1} maxPolarAngle={Math.PI * 0.495} minDistance={radius * 0.3} maxDistance={radius * 8} />
       {/* Own boundary: if post-processing suspends while loading, the scene (and its HTML labels) must not remount. */}

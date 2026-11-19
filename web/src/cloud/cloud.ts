@@ -58,3 +58,10 @@ export async function deleteProject(id: string) {
   const { error } = await (await client()).from('projects').delete().eq('id', id);
   if (error) throw error;
 }
+
+/** The city saved on the user's profile (Supabase auth user_metadata), used as the default for price searches. */
+export const userCity = (u: User | null | undefined): string => (typeof u?.user_metadata?.city === 'string' ? u.user_metadata.city : '');
+export async function saveCity(city: string) {
+  const { error } = await (await client()).auth.updateUser({ data: { city: city.trim().slice(0, 60) } });
+  if (error) throw error;
+}
